@@ -4,7 +4,7 @@ name: Ventory Desktop Release
 on:
   push:
     tags:
-      - "VENTORY - v*"
+      - "VENTORY-v*"
 
 permissions:
   contents: write
@@ -25,13 +25,13 @@ jobs:
             throw "Falta ventory-tray/VentoryTray.csproj."
           }
 
-      - name: Versión desde tag VENTORY - vX.Y.Z
+      - name: Versión desde tag VENTORY-vX.Y.Z
         id: ver
         shell: pwsh
         run: |
           $tag = $env:GITHUB_REF_NAME
-          if ($tag -notmatch '^VENTORY - v(\d+\.\d+\.\d+)$') {
-            throw "Tag invalido: '$tag'. Usa exactamente: VENTORY - vMAJOR.MINOR.PATCH (ej. VENTORY - v1.0.1)."
+          if ($tag -notmatch '^VENTORY-v(\d+\.\d+\.\d+)$') {
+            throw "Tag invalido: '$tag'. Usa VENTORY-vMAJOR.MINOR.PATCH (git no admite espacios en tags; el Release se titula VENTORY - vX.Y.Z)."
           }
           "product_version=$($Matches[1])" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
@@ -53,7 +53,7 @@ jobs:
       - name: Upload GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ github.ref_name }}
+          name: VENTORY - v${{ steps.ver.outputs.product_version }}
           body_path: packaging/RELEASE_BODY.md
           draft: false
           prerelease: false

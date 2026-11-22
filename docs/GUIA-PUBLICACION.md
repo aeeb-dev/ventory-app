@@ -7,30 +7,24 @@ Documento para quien sube versiones de **VENTORY Desktop**. El repositorio es p�
 | Acción | ¿Genera Release con `.exe`? |
 |--------|----------------------------|
 | `git push` a `main` sin tag | No |
-| `git push` del tag **`VENTORY - vX.Y.Z`** | Sí (GitHub Actions) |
+| `git push` del tag **`VENTORY-vX.Y.Z`** | Sí (GitHub Actions) |
 
-## Formato de tag (obligatorio)
+## Nombre visible vs tag de git
 
-```
-VENTORY - v1.0.0
-```
+- **Release en GitHub (título):** `VENTORY - v1.0.0` (con espacios).
+- **Tag de git (obligatorio):** `VENTORY-v1.0.0` — git **no permite espacios** en tags.
 
-- Texto exacto: `VENTORY - v` + versión **MAJOR.MINOR.PATCH**.
-- Espacios como en el ejemplo (antes y después del guión).
-- Ejemplos válidos: `VENTORY - v1.0.1`, `VENTORY - v1.1.0`.
-
-Ejemplos inválidos: `ventory-v1.0.0`, `v1.0.0`, `VENTORY-v1.0.0`.
+Ejemplos de tag: `VENTORY-v1.0.1`, `VENTORY-v2.0.0`.
 
 ### Publicar desde tu máquina
 
 ```powershell
 cd e:\MIS-CODIGOS\inv-mkt-app-local-wt
+# Editar packaging/RELEASE_BODY.md (descripción + instalación)
 .\scripts\publish-release.ps1 -Version 1.0.1
 git push ventory-app HEAD:main
-git push ventory-app "VENTORY - v1.0.1"
+git push ventory-app VENTORY-v1.0.1
 ```
-
-Usá comillas al pushear el tag por los espacios.
 
 ## Qué subir a `main` (commits)
 
@@ -68,7 +62,7 @@ La versión del `Ventory.exe` (propiedades → versión de archivo) debe coincid
 ## Checklist antes del push del tag
 
 - [ ] Probaste el `.exe` local (`.\build-desktop.ps1`).
-- [ ] El tag sigue el formato `VENTORY - vX.Y.Z`.
+- [ ] El tag de git es `VENTORY-vX.Y.Z` (sin espacios).
 - [ ] Actualizaste `packaging/RELEASE_BODY.md` (descripción + instalación para el Release).
 - [ ] Las notas hablan al usuario final, sin detalle interno.
 - [ ] No hay secretos ni archivos `github.token` en el commit.

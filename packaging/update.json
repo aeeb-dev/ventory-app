@@ -3,5 +3,5 @@
   "githubRepo": "ventory-app",
   "portableAssetName": "Ventory.exe",
   "installZipAssetName": "Ventory-desktop.zip",
-  "releaseTagPrefix": "VENTORY - v"
+  "releaseTagPrefix": "VENTORY-v"
 }
