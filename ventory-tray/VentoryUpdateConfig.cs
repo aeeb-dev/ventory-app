@@ -58,7 +58,7 @@ internal sealed class VentoryUpdateConfig
             }
         }
 
-        return null;
+        return VentoryBuildSecrets.EmbeddedGitHubToken;
     }
 
     private static IEnumerable<string> ConfigPaths()

@@ -22,12 +22,12 @@ Solo el **push del tag** dispara el build en CI. El nombre debe ser `ventory-vMA
 
 ## En cada PC con VENTORY
 
-1. PAT de GitHub con **Contents: Read** en el repo privado.
-2. Archivo de una línea:
+**Releases oficiales (recomendado):** el `.exe` del GitHub Release puede llevar el PAT de solo lectura **embebido en el build de CI** (`VENTORY_EMBED_GITHUB_TOKEN`). Solo distribuí el `.exe`; no hace falta `github.token`. Ver `docs/TOKEN-GITHUB-LECTURA.md`.
 
-   `%LocalAppData%\Ventory\github.token`
+**Override manual (soporte / builds locales):**
 
-   Alternativa: variable `VENTORY_GITHUB_TOKEN`.
+1. PAT con **Contents: Read** en el repo privado.
+2. `%LocalAppData%\Ventory\github.token` o `VENTORY_GITHUB_TOKEN`.
 
 3. `update.json` por defecto apunta a `aeeb-dev/inv-mkt-seguimiento` (se copia al instalar).
 

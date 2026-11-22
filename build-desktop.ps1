@@ -1,5 +1,6 @@
 ﻿param(
-  [string]$ProductVersion = ""
+  [string]$ProductVersion = "",
+  [string]$EmbeddedGitHubToken = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -20,6 +21,14 @@ if ($ProductVersion -match '^(\d+)\.(\d+)\.(\d+)$') {
     "-p:InformationalVersion=$ProductVersion"
   )
   Write-Host "Version embebida: $ProductVersion ($fileVer)"
+}
+
+if ([string]::IsNullOrWhiteSpace($EmbeddedGitHubToken)) {
+  $EmbeddedGitHubToken = $env:VENTORY_EMBED_GITHUB_TOKEN
+}
+if (-not [string]::IsNullOrWhiteSpace($EmbeddedGitHubToken)) {
+  $versionProps += "-p:EmbeddedGitHubToken=$EmbeddedGitHubToken"
+  Write-Host "Build con token embebido (solo releases CI; no commitear)."
 }
 
 $iconSrc = $iconDst

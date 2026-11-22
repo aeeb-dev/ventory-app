@@ -47,9 +47,11 @@ internal static class VentoryGitHubUpdate
             return new UpdateCheckResult(
                 false,
                 false,
-                "Falta token de GitHub. Creá el archivo:\n" +
-                $"%LocalAppData%\\Ventory\\github.token\n\n" +
-                "O la variable de entorno VENTORY_GITHUB_TOKEN (PAT con acceso read al repo privado).");
+                "Sin acceso a GitHub para actualizar.\n\n" +
+                "Usá el Ventory.exe del release oficial (incluye token de lectura en el build de CI) o configurá:\n" +
+                $"%LocalAppData%\\Ventory\\github.token\n" +
+                "o VENTORY_GITHUB_TOKEN.\n\n" +
+                "Detalle para administradores: docs/TOKEN-GITHUB-LECTURA.md en rama app-local.");
         }
 
         var url = $"https://api.github.com/repos/{config.GitHubOwner}/{config.GitHubRepo}/releases/latest";

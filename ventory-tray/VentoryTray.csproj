@@ -16,7 +16,15 @@
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <!-- Solo en CI: -p:EmbeddedGitHubToken=... (nunca commitear el valor) -->
+    <EmbeddedGitHubToken Condition="'$(EmbeddedGitHubToken)' == ''"></EmbeddedGitHubToken>
   </PropertyGroup>
+  <ItemGroup Condition="'$(EmbeddedGitHubToken)' != ''">
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>VentoryEmbeddedGitHubToken</_Parameter1>
+      <_Parameter2>$(EmbeddedGitHubToken)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
     <Content Include="icon-inv-favicon.ico" CopyToOutputDirectory="PreserveNewest" />
