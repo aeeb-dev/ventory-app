@@ -15,11 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Comprobar layout app-local
+      - name: Comprobar layout del repo
         shell: pwsh
         run: |
           if (-not (Test-Path "./build-desktop.ps1")) {
-            throw "Este tag no apunta a un commit de app-local (falta build-desktop.ps1). Crea el tag solo en rama app-local."
+            throw "Falta build-desktop.ps1 en la raiz del commit etiquetado."
           }
           if (-not (Test-Path "./ventory-tray/VentoryTray.csproj")) {
             throw "Falta ventory-tray/VentoryTray.csproj."
@@ -31,7 +31,7 @@ jobs:
         run: |
           $tag = $env:GITHUB_REF_NAME
           if ($tag -notmatch '^ventory-v(\d+\.\d+\.\d+)$') {
-            throw "Tag invalido: '$tag'. Usa ventory-vMAJOR.MINOR.PATCH (ej. ventory-v1.0.1) en rama app-local."
+            throw "Tag invalido: '$tag'. Usa ventory-vMAJOR.MINOR.PATCH (ej. ventory-v1.0.1)."
           }
           "product_version=$($Matches[1])" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 

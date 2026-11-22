@@ -68,11 +68,9 @@ internal static class VentoryGitHubUpdate
                 response.StatusCode switch
                 {
                     System.Net.HttpStatusCode.NotFound =>
-                        "No hay releases en GitHub. Publicá un tag ventory-vX.Y.Z desde la rama app-local.",
+                        "No hay actualizaciones publicadas todavía.",
                     System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden =>
-                        string.IsNullOrEmpty(token)
-                            ? "Repo privado o acceso denegado. Configurá github.token o usá el repo público ventory-app."
-                            : "Token inválido o sin permiso de lectura en el repo.",
+                        "No se pudo acceder al origen de actualizaciones.",
                     _ => $"GitHub respondió {(int)response.StatusCode}: {Trim(body, 200)}",
                 });
         }

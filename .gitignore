@@ -19,4 +19,3 @@ ventory-desktop/neutralinojs.log
 # Secretos locales
 github.token
 **/github.token
-!packaging/github.token.example
