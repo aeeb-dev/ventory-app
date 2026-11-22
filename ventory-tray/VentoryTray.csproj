@@ -13,9 +13,9 @@
     <Authors>AEEB-DEV</Authors>
     <Description>Cliente de escritorio oficial de VENTORY (ventory.bferal.cl).</Description>
     <Copyright>Copyright © AEEB-DEV — www.bferal.cl</Copyright>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
     <!-- Solo en CI: -p:EmbeddedGitHubToken=... (nunca commitear el valor) -->
     <EmbeddedGitHubToken Condition="'$(EmbeddedGitHubToken)' == ''"></EmbeddedGitHubToken>
   </PropertyGroup>
