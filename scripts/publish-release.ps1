@@ -1,4 +1,4 @@
-﻿# Publica release en GitHub (solo rama app-local).
+﻿# Publica release en GitHub (repo aeeb-dev/ventory-app, rama main).
 # Uso: .\scripts\publish-release.ps1 -Version 1.0.1
 param(
   [Parameter(Mandatory = $true)]
@@ -11,11 +11,11 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') {
 }
 
 $branch = git branch --show-current
-if ($branch -ne "app-local") {
-  throw "Debes estar en la rama app-local (actual: $branch)."
+if ($branch -notin @("main", "app-local")) {
+  throw "Debes estar en main (repo ventory-app) o app-local (actual: $branch)."
 }
 if (-not (Test-Path (Join-Path $PSScriptRoot "..\build-desktop.ps1"))) {
-  throw "No se encuentra build-desktop.ps1; ¿estás en la raíz de app-local?"
+  throw "No se encuentra build-desktop.ps1 en la raíz del repo de escritorio."
 }
 
 $tag = "ventory-v$Version"
@@ -32,11 +32,10 @@ $c = $c -replace '<(FileVersion)>[^<]+</FileVersion>', "<FileVersion>$Version.0<
 Set-Content $csproj $c -NoNewline
 
 git add $csproj
-git commit -m "release(app-local): ventory-v$Version"
+git commit -m "release: ventory-v$Version"
 git tag $tag
-Write-Host "Tag local $tag creado. Publicar con:"
-Write-Host "  git push origin app-local"
+Write-Host "Tag local $tag creado. Publicar en aeeb-dev/ventory-app:"
+Write-Host "  git push origin $branch"
 Write-Host "  git push origin $tag"
 Write-Host ""
-Write-Host "El push del tag dispara CI, construye Ventory.exe y crea GitHub Release."
-Write-Host "Los clientes con github.token verán la actualización si su FileVersion es menor."
+Write-Host "El push del tag dispara CI, construye Ventory.exe y crea GitHub Release publico."
