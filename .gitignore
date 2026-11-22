@@ -1,0 +1,22 @@
+# Build / publish
+Ventory.exe
+Ventory-desktop.zip
+Ventory/
+.publish-portable/
+.publish-folder/
+
+# .NET
+ventory-tray/bin/
+ventory-tray/obj/
+
+# Neutralino (opcional)
+ventory-desktop/bin/
+ventory-desktop/dist/
+ventory-desktop/.tmp/
+ventory-desktop/.storage/
+ventory-desktop/neutralinojs.log
+
+# Secretos locales
+github.token
+**/github.token
+!packaging/github.token.example

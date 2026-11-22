@@ -1,0 +1,13 @@
+VENTORY — cliente de escritorio
+================================
+
+• Ventory.exe (en AppLocal) = un solo archivo para enviar a otros.
+  La primera vez se copia a:
+    %LocalAppData%\Ventory\
+  y desde ahí arranca más rápido.
+
+• Esta carpeta Ventory\ también sirve si copias todo el directorio junto.
+
+Doble clic en Ventory.exe
+Cerrar ventana = sigue en bandeja — Salir solo con clic derecho → Salir
+Doble clic en bandeja = mostrar

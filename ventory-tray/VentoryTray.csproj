@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Ventory</AssemblyName>
+    <RootNamespace>Bferal.VentoryDesktop</RootNamespace>
+    <ApplicationIcon>icon-inv-favicon.ico</ApplicationIcon>
+    <Company>BFERAL — AEEB-DEV</Company>
+    <Product>VENTORY Desktop</Product>
+    <Authors>AEEB-DEV</Authors>
+    <Description>Cliente de escritorio oficial de VENTORY (ventory.bferal.cl).</Description>
+    <Copyright>Copyright © AEEB-DEV — www.bferal.cl</Copyright>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+    <Content Include="icon-inv-favicon.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
