@@ -72,6 +72,10 @@ La versión del `Ventory.exe` (propiedades → versión de archivo) debe coincid
 - [ ] Las notas del release hablan al usuario final, sin detalle interno.
 - [ ] No hay secretos ni archivos `github.token` en el commit.
 
+## Assets del Release
+
+El workflow sube **solo `Ventory.exe`**. GitHub puede mostrar además *Source code (zip/tar.gz)*: es un snapshot automático del código público del tag, no lo generamos nosotros ni incluye secretos si el repo está limpio.
+
 ## Referencia
 
 - Usuarios y descargas: [README](../README.md) y [Releases](https://github.com/aeeb-dev/ventory-app/releases).

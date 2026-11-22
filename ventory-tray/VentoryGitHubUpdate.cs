@@ -97,12 +97,12 @@ internal static class VentoryGitHubUpdate
             }
         }
 
-        if (exeUrl is null && zipUrl is null)
+        if (exeUrl is null)
         {
             return new UpdateCheckResult(
                 false,
                 false,
-                $"El último release ({tag}) no incluye {config.PortableAssetName} ni {config.InstallZipAssetName}.");
+                $"El último release ({tag}) no incluye {config.PortableAssetName}.");
         }
 
         var current = CurrentVersion();

@@ -47,7 +47,6 @@ jobs:
         shell: pwsh
         run: |
           if (-not (Test-Path "./Ventory.exe")) { throw "No se genero Ventory.exe" }
-          if (-not (Test-Path "./Ventory-desktop.zip")) { throw "No se genero Ventory-desktop.zip" }
           $ver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Resolve-Path "./Ventory.exe")).FileVersion
           Write-Host "Ventory.exe FileVersion: $ver"
 
@@ -59,5 +58,3 @@ jobs:
           prerelease: false
           files: |
             Ventory.exe
-            Ventory-desktop.zip
-            Ventory/update.json
