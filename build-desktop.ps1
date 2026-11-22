@@ -27,9 +27,13 @@ if (-not (Test-Path $iconSrc)) {
   $iconSrc = Join-Path $root "..\public\icon-inv-favicon.ico"
 }
 if (-not (Test-Path $iconSrc)) {
-  throw "No se encontró icon-inv-favicon.ico en ventory-tray."
+  throw "No se encontró icon-inv-favicon.ico (ventory-tray o public)."
 }
-Copy-Item $iconSrc $iconDst -Force
+$srcFull = (Resolve-Path -LiteralPath $iconSrc).Path
+$dstFull = [System.IO.Path]::GetFullPath($iconDst)
+if ($srcFull -ne $dstFull) {
+  Copy-Item -LiteralPath $iconSrc -Destination $iconDst -Force
+}
 
 if (Test-Path $stagePortable) { Remove-Item $stagePortable -Recurse -Force }
 if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
