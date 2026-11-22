@@ -69,7 +69,8 @@ La versión del `Ventory.exe` (propiedades → versión de archivo) debe coincid
 
 - [ ] Probaste el `.exe` local (`.\build-desktop.ps1`).
 - [ ] El tag sigue el formato `VENTORY - vX.Y.Z`.
-- [ ] Las notas del release hablan al usuario final, sin detalle interno.
+- [ ] Actualizaste `packaging/RELEASE_BODY.md` (descripción + instalación para el Release).
+- [ ] Las notas hablan al usuario final, sin detalle interno.
 - [ ] No hay secretos ni archivos `github.token` en el commit.
 
 ## Assets del Release
