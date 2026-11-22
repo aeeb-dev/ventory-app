@@ -8,6 +8,8 @@ internal static class Program
         if (VentoryInstall.TryRelaunchFromInstallIfNeeded(args))
             return;
 
+        VentoryUpdateConfig.RefreshInstallUpdateJsonIfNeeded();
+
         var bootHidden = args.Any(static arg =>
             arg.Equals("--tray-only", StringComparison.OrdinalIgnoreCase) ||
             arg.Equals("--minimized", StringComparison.OrdinalIgnoreCase) ||

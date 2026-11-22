@@ -28,7 +28,7 @@ internal sealed class VentoryUpdateConfig
                 var json = File.ReadAllText(path);
                 var fromFile = JsonSerializer.Deserialize<VentoryUpdateConfig>(json, JsonOptions);
                 if (fromFile is null) continue;
-                return Merge(defaults, fromFile);
+                return NormalizeLegacyRepo(Merge(defaults, fromFile));
             }
             catch
             {
@@ -77,6 +77,30 @@ internal sealed class VentoryUpdateConfig
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "VentoryDesktop",
             "github.token");
+    }
+
+    /// <summary>Instalaciones 1.0.0 con update.json del repo privado dejan de ver releases en ventory-app.</summary>
+    private static VentoryUpdateConfig NormalizeLegacyRepo(VentoryUpdateConfig config)
+    {
+        if (config.GitHubRepo.Contains("inv-mkt-seguimiento", StringComparison.OrdinalIgnoreCase))
+            config.GitHubRepo = "ventory-app";
+        return config;
+    }
+
+    public static void RefreshInstallUpdateJsonIfNeeded()
+    {
+        try
+        {
+            var path = Path.Combine(VentoryInstall.InstallDirectory, "update.json");
+            var cfg = NormalizeLegacyRepo(new VentoryUpdateConfig());
+            var json = JsonSerializer.Serialize(cfg, new JsonSerializerOptions { WriteIndented = true });
+            Directory.CreateDirectory(VentoryInstall.InstallDirectory);
+            File.WriteAllText(path, json);
+        }
+        catch
+        {
+            /* ignore */
+        }
     }
 
     private static VentoryUpdateConfig Merge(VentoryUpdateConfig defaults, VentoryUpdateConfig file) =>
