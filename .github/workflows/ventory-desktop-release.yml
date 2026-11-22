@@ -1,6 +1,6 @@
 name: Ventory Desktop Release
 
-# El tag debe crearse sobre un commit de la rama app-local (build-desktop.ps1 en la raíz).
+# Repo publico aeeb-dev/ventory-app. Tag sobre un commit con build-desktop.ps1 en la raiz.
 on:
   push:
     tags:
