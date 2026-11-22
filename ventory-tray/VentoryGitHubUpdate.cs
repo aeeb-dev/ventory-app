@@ -183,7 +183,9 @@ internal static class VentoryGitHubUpdate
     private static Version? ParseReleaseVersion(string tag)
     {
         var cleaned = tag.Trim();
-        if (cleaned.StartsWith("ventory-v", StringComparison.OrdinalIgnoreCase))
+        if (cleaned.StartsWith("VENTORY - v", StringComparison.OrdinalIgnoreCase))
+            cleaned = cleaned["VENTORY - v".Length..].Trim();
+        else if (cleaned.StartsWith("ventory-v", StringComparison.OrdinalIgnoreCase))
             cleaned = cleaned["ventory-v".Length..];
         else if (cleaned.StartsWith('v') || cleaned.StartsWith('V'))
             cleaned = cleaned[1..];
