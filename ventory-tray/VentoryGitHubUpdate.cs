@@ -42,21 +42,10 @@ internal static class VentoryGitHubUpdate
     {
         var config = VentoryUpdateConfig.Load();
         var token = VentoryUpdateConfig.ResolveGitHubToken();
-        if (string.IsNullOrEmpty(token))
-        {
-            return new UpdateCheckResult(
-                false,
-                false,
-                "Sin acceso a GitHub para actualizar.\n\n" +
-                "Usá el Ventory.exe del release oficial (incluye token de lectura en el build de CI) o configurá:\n" +
-                $"%LocalAppData%\\Ventory\\github.token\n" +
-                "o VENTORY_GITHUB_TOKEN.\n\n" +
-                "Detalle para administradores: docs/TOKEN-GITHUB-LECTURA.md en rama app-local.");
-        }
 
         var url = $"https://api.github.com/repos/{config.GitHubOwner}/{config.GitHubRepo}/releases/latest";
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        ApplyGitHubAuth(request, token);
         request.Headers.UserAgent.ParseAdd("VentoryDesktop-Update");
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
 
@@ -81,7 +70,9 @@ internal static class VentoryGitHubUpdate
                     System.Net.HttpStatusCode.NotFound =>
                         "No hay releases en GitHub. Publicá un tag ventory-vX.Y.Z desde la rama app-local.",
                     System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden =>
-                        "Token inválido o sin permiso de lectura en el repo privado.",
+                        string.IsNullOrEmpty(token)
+                            ? "Repo privado o acceso denegado. Configurá github.token o usá el repo público ventory-app."
+                            : "Token inválido o sin permiso de lectura en el repo.",
                     _ => $"GitHub respondió {(int)response.StatusCode}: {Trim(body, 200)}",
                 });
         }
@@ -139,14 +130,13 @@ internal static class VentoryGitHubUpdate
         CancellationToken cancellationToken = default)
     {
         var token = VentoryUpdateConfig.ResolveGitHubToken();
-        if (string.IsNullOrEmpty(token)) return null;
 
         var tempDir = Path.Combine(Path.GetTempPath(), "Ventory-update", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
         var target = Path.Combine(tempDir, "Ventory.new.exe");
 
         using var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        ApplyGitHubAuth(request, token);
         request.Headers.UserAgent.ParseAdd("VentoryDesktop-Update");
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
 
@@ -204,6 +194,12 @@ internal static class VentoryGitHubUpdate
             return direct;
 
         return Version.TryParse(cleaned, out var fallback) ? fallback : null;
+    }
+
+    private static void ApplyGitHubAuth(HttpRequestMessage request, string? token)
+    {
+        if (!string.IsNullOrWhiteSpace(token))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Trim());
     }
 
     private static string Trim(string value, int max) =>

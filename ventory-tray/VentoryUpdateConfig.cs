@@ -9,7 +9,7 @@ internal sealed class VentoryUpdateConfig
     public string GitHubOwner { get; set; } = "aeeb-dev";
 
     [JsonPropertyName("githubRepo")]
-    public string GitHubRepo { get; set; } = "inv-mkt-seguimiento";
+    public string GitHubRepo { get; set; } = "ventory-app";
 
     [JsonPropertyName("portableAssetName")]
     public string PortableAssetName { get; set; } = "Ventory.exe";

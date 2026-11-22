@@ -1,6 +1,6 @@
 {
   "githubOwner": "aeeb-dev",
-  "githubRepo": "inv-mkt-seguimiento",
+  "githubRepo": "ventory-app",
   "portableAssetName": "Ventory.exe",
   "installZipAssetName": "Ventory-desktop.zip",
   "releaseTagPrefix": "ventory-v"

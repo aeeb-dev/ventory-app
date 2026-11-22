@@ -41,8 +41,6 @@ jobs:
 
       - name: Build portable + carpeta
         shell: pwsh
-        env:
-          VENTORY_EMBED_GITHUB_TOKEN: ${{ secrets.VENTORY_EMBED_GITHUB_TOKEN }}
         run: ./build-desktop.ps1 -ProductVersion ${{ steps.ver.outputs.product_version }}
 
       - name: Verificar artefactos
