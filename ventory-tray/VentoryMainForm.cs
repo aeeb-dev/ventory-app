@@ -45,14 +45,16 @@ internal sealed class VentoryMainForm : Form
     private readonly WebView2 _webView = new() { Dock = DockStyle.Fill };
     private readonly NotifyIcon _tray;
     private readonly HashSet<string> _seenNotificationIds = new(StringComparer.Ordinal);
+    private readonly System.Windows.Forms.Timer _updatePollTimer;
     private string _activeUrl;
+    private bool _updatePromptOpen;
 
     public VentoryMainForm(bool startHidden)
     {
         _startHidden = startHidden;
         _activeUrl = LoadActiveUrl();
 
-        Text = "VENTORY";
+        Text = BuildWindowTitle();
         Width = 1320;
         Height = 860;
         StartPosition = FormStartPosition.CenterScreen;
@@ -61,6 +63,8 @@ internal sealed class VentoryMainForm : Form
         Icon = (Icon)appIcon.Clone();
 
         _tray = CreateTrayIcon(appIcon);
+        _updatePollTimer = new System.Windows.Forms.Timer { Interval = (int)TimeSpan.FromHours(2).TotalMilliseconds };
+        _updatePollTimer.Tick += (_, _) => _ = CheckForUpdatesSilentAsync();
         Controls.Add(_webView);
 
         Load += OnFormLoadAsync;
@@ -82,9 +86,11 @@ internal sealed class VentoryMainForm : Form
         else
             ShowFromTray();
 
+        _updatePollTimer.Start();
+
         _ = Task.Run(async () =>
         {
-            await Task.Delay(TimeSpan.FromSeconds(45)).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(30)).ConfigureAwait(false);
             await CheckForUpdatesSilentAsync().ConfigureAwait(false);
         });
     }
@@ -94,12 +100,27 @@ internal sealed class VentoryMainForm : Form
         var result = await VentoryGitHubUpdate.CheckForUpdatesAsync().ConfigureAwait(true);
         if (!result.Success || !result.UpdateAvailable) return;
 
-        BeginInvoke(() =>
-            _tray.ShowBalloonTip(
-                6000,
-                "VENTORY — actualización",
-                result.Message,
-                ToolTipIcon.Info));
+        if (InvokeRequired)
+        {
+            BeginInvoke(() => _ = PromptForcedUpdateIfNeededAsync(result));
+            return;
+        }
+
+        await PromptForcedUpdateIfNeededAsync(result).ConfigureAwait(true);
+    }
+
+    private async Task PromptForcedUpdateIfNeededAsync(UpdateCheckResult result)
+    {
+        if (_updatePromptOpen) return;
+        _updatePromptOpen = true;
+        try
+        {
+            await OfferAndApplyUpdateAsync(result, forcedPrompt: true).ConfigureAwait(true);
+        }
+        finally
+        {
+            _updatePromptOpen = false;
+        }
     }
 
     private async Task CheckForUpdatesInteractiveAsync()
@@ -119,6 +140,30 @@ internal sealed class VentoryMainForm : Form
                 return;
             }
 
+            await OfferAndApplyUpdateAsync(result, forcedPrompt: false).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            UseWaitCursor = false;
+            MessageBox.Show(this, ex.Message, "VENTORY — actualizaciones", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private async Task OfferAndApplyUpdateAsync(UpdateCheckResult result, bool forcedPrompt)
+    {
+        if (forcedPrompt)
+        {
+            var current = VentoryGitHubUpdate.CurrentVersion();
+            var remote = result.RemoteVersion?.ToString() ?? "nueva";
+            var msg =
+                $"Hay una nueva versión ({current} → {remote}).\n\n" +
+                "Es necesario actualizar para seguir usando VENTORY.\n" +
+                "Se descargará e instalará ahora; la aplicación se reiniciará.";
+            if (!ShowActualizarAhoraDialog(msg, "VENTORY — actualización requerida"))
+                return;
+        }
+        else
+        {
             var confirm = MessageBox.Show(
                 this,
                 result.Message + "\n\n¿Descargar e instalar ahora? La app se reiniciará.",
@@ -126,18 +171,25 @@ internal sealed class VentoryMainForm : Form
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
+        }
 
-            if (string.IsNullOrEmpty(result.PortableDownloadUrl))
-            {
-                MessageBox.Show(this, "Este release no trae Ventory.exe portable.", "VENTORY", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+        await DownloadAndApplyUpdateAsync(result).ConfigureAwait(true);
+    }
 
-            UseWaitCursor = true;
+    private async Task DownloadAndApplyUpdateAsync(UpdateCheckResult result)
+    {
+        if (string.IsNullOrEmpty(result.PortableDownloadUrl))
+        {
+            MessageBox.Show(this, "Este release no incluye Ventory.exe.", "VENTORY", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        UseWaitCursor = true;
+        try
+        {
             var path = await VentoryGitHubUpdate
                 .DownloadPortableUpdateAsync(result.PortableDownloadUrl)
                 .ConfigureAwait(true);
-            UseWaitCursor = false;
 
             if (path is null)
             {
@@ -147,11 +199,51 @@ internal sealed class VentoryMainForm : Form
 
             VentoryGitHubUpdate.ScheduleApplyPortableUpdateAndRestart(path);
         }
-        catch (Exception ex)
+        finally
         {
             UseWaitCursor = false;
-            MessageBox.Show(this, ex.Message, "VENTORY — actualizaciones", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    private static string BuildWindowTitle()
+    {
+        var v = VentoryGitHubUpdate.CurrentVersion();
+        var label = v.Revision > 0 ? $"{v.Major}.{v.Minor}.{v.Build}.{v.Revision}" : $"{v.Major}.{v.Minor}.{v.Build}";
+        return $"VENTORY | v{label}";
+    }
+
+    private bool ShowActualizarAhoraDialog(string message, string title)
+    {
+        using var dialog = new Form
+        {
+            Text = title,
+            FormBorderStyle = FormBorderStyle.FixedDialog,
+            StartPosition = FormStartPosition.CenterParent,
+            MinimizeBox = false,
+            MaximizeBox = false,
+            ControlBox = false,
+            ShowInTaskbar = true,
+            ClientSize = new Size(440, 168),
+            Icon = Icon,
+        };
+
+        var label = new Label
+        {
+            Text = message,
+            AutoSize = false,
+            Bounds = new Rectangle(16, 16, 408, 88),
+        };
+        var button = new Button
+        {
+            Text = "Actualizar ahora",
+            DialogResult = DialogResult.OK,
+            Bounds = new Rectangle(144, 112, 152, 32),
+        };
+        dialog.Controls.Add(label);
+        dialog.Controls.Add(button);
+        dialog.AcceptButton = button;
+
+        return dialog.ShowDialog(this) == DialogResult.OK;
     }
 
     private async Task InitWebViewAsync()
@@ -226,15 +318,15 @@ internal sealed class VentoryMainForm : Form
             SetAutostartEnabled(autostart.Checked);
         };
         menu.Items.Add(autostart);
-        menu.Items.Add("Buscar actualizaciones…", null, (_, _) => _ = CheckForUpdatesInteractiveAsync());
         menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add("Buscar actualizaciones…", null, (_, _) => _ = CheckForUpdatesInteractiveAsync());
         menu.Items.Add("Salir", null, (_, _) => ExitApplication());
 
         var trayIcon = (Icon)appIcon.Clone();
         var notify = new NotifyIcon
         {
             Icon = trayIcon,
-            Text = "VENTORY",
+            Text = BuildWindowTitle(),
             Visible = true,
             ContextMenuStrip = menu,
         };
@@ -283,6 +375,8 @@ internal sealed class VentoryMainForm : Form
 
     private void ExitApplication()
     {
+        _updatePollTimer.Stop();
+        _updatePollTimer.Dispose();
         _tray.Visible = false;
         _tray.Dispose();
         Application.Exit();
