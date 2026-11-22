@@ -1,38 +1,37 @@
 # VENTORY — escritorio Windows
 
+**Rama `app-local` únicamente** — separada de la app web (`main`). No mezclar con Next.js.
+
+Repo: `aeeb-dev/inv-mkt-seguimiento` → branch **`app-local`**.
+
 ## Qué compartir
 
 | Archivo | Uso |
 |---------|-----|
-| **`AppLocal/Ventory.exe`** | Un solo `.exe` para enviar; en el **primer uso** se instala solo en `%LocalAppData%\Ventory\` |
-| **`AppLocal/Ventory/`** | Carpeta completa (arranque más rápido si copias todo) |
+| **`Ventory.exe`** (tras `.\build-desktop.ps1`) | Un solo `.exe` para enviar |
+| **`Ventory/`** | Carpeta completa (arranque más rápido) |
 
-## Instalación automática
-
-La primera vez que alguien abre el `.exe` (desde Descargas, Escritorio, etc.):
-
-1. Crea la carpeta **`%LocalAppData%\Ventory\`** (p. ej. `C:\Users\tu_usuario\AppData\Local\Ventory\`)
-2. Copia ahí el programa y lo que necesita
-3. Vuelve a abrir desde esa carpeta (como otros programas de usuario)
-
-Inicio con Windows y datos del navegador usan esa ruta instalada.
-
-## Desarrollo / regenerar
+## Build
 
 ```powershell
-AppLocal\build-desktop.ps1
+.\build-desktop.ps1
+.\launch.ps1
 ```
 
-## Uso
+## Instalación en el PC del usuario
 
-```powershell
-AppLocal\launch.ps1
+La primera vez que abren el `.exe`, se instala en `%LocalAppData%\Ventory\`.
+
+## Actualizaciones GitHub
+
+[docs/ACTUALIZACIONES-GITHUB.md](docs/ACTUALIZACIONES-GITHUB.md)
+
+## Sincronizar desde un monorepo local (opcional)
+
+Si tenés una copia con carpeta `AppLocal/` en `main` (ignorada), actualizá la rama con:
+
+```bash
+git subtree push --prefix=AppLocal origin app-local
 ```
 
-- Cierras la ventana → sigue en bandeja  
-- **Salir** solo en menú de bandeja (clic derecho)  
-- Primera ejecución: **Iniciar con Windows** activado (en bandeja)
-
-## Actualizaciones (repo privado GitHub)
-
-Ver [docs/ACTUALIZACIONES-GITHUB.md](docs/ACTUALIZACIONES-GITHUB.md): token en `%LocalAppData%\Ventory\github.token`, releases con tag `ventory-v*`.
+Desarrollo diario recomendado: clonar y usar **`git checkout app-local`**.

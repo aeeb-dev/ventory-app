@@ -17,16 +17,17 @@
 
 La app comprueba releases al inicio (aviso en bandeja) y desde **Bandeja → Buscar actualizaciones…**.
 
-## Rama `app-local`
+## Rama `app-local` (obligatorio)
 
-El cliente de escritorio vive en la rama **`app-local`** (solo esta carpeta/proyecto, sin la web Next.js).
+Este proyecto **no está en `main`**. Solo existe en la rama **`app-local`**.
 
 ```bash
-git push -u origin app-local
-# Release:
+git checkout app-local
 git tag ventory-v1.0.1
 git push origin ventory-v1.0.1
 ```
+
+El workflow `.github/workflows/ventory-desktop-release.yml` publica `Ventory.exe` en GitHub Releases.
 
 ## Publicar una versión nueva (mantenedor)
 
