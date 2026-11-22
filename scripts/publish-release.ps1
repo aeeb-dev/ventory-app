@@ -34,8 +34,11 @@ Set-Content $csproj $c -NoNewline
 git add $csproj
 git commit -m "release: ventory-v$Version"
 git tag $tag
+$remote = "origin"
+if ((git remote) -contains "ventory-app") { $remote = "ventory-app" }
+$pushRef = if ($remote -eq "ventory-app" -and $branch -eq "app-local") { "HEAD:main" } else { $branch }
 Write-Host "Tag local $tag creado. Publicar en aeeb-dev/ventory-app:"
-Write-Host "  git push origin $branch"
-Write-Host "  git push origin $tag"
+Write-Host "  git push $remote $pushRef"
+Write-Host "  git push $remote $tag"
 Write-Host ""
 Write-Host "El push del tag dispara CI, construye Ventory.exe y crea GitHub Release publico."
