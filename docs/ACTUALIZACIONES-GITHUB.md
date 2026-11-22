@@ -1,51 +1,42 @@
-# Actualizaciones desde GitHub (repo privado)
+# Actualizaciones automáticas (GitHub privado)
 
-## En cada PC con VENTORY
+## Cadena completa
 
-1. Crear un **Personal Access Token** (fine-grained o classic) con permiso **Contents: Read** del repo privado.
-2. Guardar **una línea** con el token en:
+1. **Mantenedor** en rama `app-local` → tag `ventory-v1.0.1` → push del tag.
+2. **GitHub Actions** (`ventory-desktop-release.yml`) valida `build-desktop.ps1`, compila con esa versión y publica **Release** con `Ventory.exe`.
+3. **Cliente** con `github.token` consulta `releases/latest`, compara versión y ofrece descargar `Ventory.exe`.
 
-   ```
-   %LocalAppData%\Ventory\github.token
-   ```
+Si el tag se crea sobre `main`, el workflow **falla** (no existe `build-desktop.ps1` en la raíz).
 
-   (Tras la primera ejecución de `Ventory.exe`, esa carpeta ya existe.)
+## Publicar versión (mantenedor)
 
-   Alternativa: variable de entorno de usuario `VENTORY_GITHUB_TOKEN`.
-
-3. Opcional: copiar `update.json` a `%LocalAppData%\Ventory\` si el repo u owner no son `aeeb-dev/inv-mkt-seguimiento`.
-
-La app comprueba releases al inicio (aviso en bandeja) y desde **Bandeja → Buscar actualizaciones…**.
-
-## Rama `app-local` (obligatorio)
-
-Este proyecto **no está en `main`**. Solo existe en la rama **`app-local`**.
-
-```bash
+```powershell
 git checkout app-local
-git tag ventory-v1.0.1
+git pull origin app-local
+.\scripts\publish-release.ps1 -Version 1.0.1
+git push origin app-local
 git push origin ventory-v1.0.1
 ```
 
-El workflow `.github/workflows/ventory-desktop-release.yml` publica `Ventory.exe` en GitHub Releases.
+Solo el **push del tag** dispara el build en CI. El nombre debe ser `ventory-vMAJOR.MINOR.PATCH`.
 
-## Publicar una versión nueva (mantenedor)
+## En cada PC con VENTORY
 
-1. Subir versión en `ventory-tray/VentoryTray.csproj` (`Version`, `FileVersion`) en rama `app-local`.
-2. Commit y tag:
+1. PAT de GitHub con **Contents: Read** en el repo privado.
+2. Archivo de una línea:
 
-   ```bash
-   git tag ventory-v1.0.1
-   git push origin ventory-v1.0.1
-   ```
+   `%LocalAppData%\Ventory\github.token`
 
-3. GitHub Actions construye y adjunta a **Releases**:
-   - `Ventory.exe`
-   - `Ventory-desktop.zip`
+   Alternativa: variable `VENTORY_GITHUB_TOKEN`.
 
-4. Los clientes con `github.token` instalado recibirán la oferta de actualización.
+3. `update.json` por defecto apunta a `aeeb-dev/inv-mkt-seguimiento` (se copia al instalar).
 
-## Seguridad
+La app avisa en bandeja o con **Buscar actualizaciones…**.
 
-- No subir `github.token` al repo (está en `.gitignore` vía rutas locales).
-- Usar un PAT con mínimo privilegio (solo lectura del repo o solo releases).
+## Primera release
+
+Sin ningún Release en GitHub, el cliente muestra “No hay releases publicados”. El primer `git push origin ventory-v1.0.0` lo resuelve.
+
+## Comprobar versión instalada
+
+Propiedades de `Ventory.exe` → Detalles → **Versión de archivo**. Debe ser menor que la del último tag para que ofrezca actualizar.

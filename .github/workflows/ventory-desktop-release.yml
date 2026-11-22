@@ -1,5 +1,6 @@
 name: Ventory Desktop Release
 
+# El tag debe crearse sobre un commit de la rama app-local (build-desktop.ps1 en la raíz).
 on:
   push:
     tags:
@@ -14,13 +15,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Comprobar layout app-local
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "./build-desktop.ps1")) {
+            throw "Este tag no apunta a un commit de app-local (falta build-desktop.ps1). Crea el tag solo en rama app-local."
+          }
+          if (-not (Test-Path "./ventory-tray/VentoryTray.csproj")) {
+            throw "Falta ventory-tray/VentoryTray.csproj."
+          }
+
+      - name: Versión desde tag ventory-vX.Y.Z
+        id: ver
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          if ($tag -notmatch '^ventory-v(\d+\.\d+\.\d+)$') {
+            throw "Tag invalido: '$tag'. Usa ventory-vMAJOR.MINOR.PATCH (ej. ventory-v1.0.1) en rama app-local."
+          }
+          "product_version=$($Matches[1])" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
 
-      - name: Build portable + folder
+      - name: Build portable + carpeta
         shell: pwsh
-        run: ./build-desktop.ps1
+        run: ./build-desktop.ps1 -ProductVersion ${{ steps.ver.outputs.product_version }}
+
+      - name: Verificar artefactos
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "./Ventory.exe")) { throw "No se genero Ventory.exe" }
+          if (-not (Test-Path "./Ventory-desktop.zip")) { throw "No se genero Ventory-desktop.zip" }
+          $ver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Resolve-Path "./Ventory.exe")).FileVersion
+          Write-Host "Ventory.exe FileVersion: $ver"
 
       - name: Upload GitHub Release
         uses: softprops/action-gh-release@v2
